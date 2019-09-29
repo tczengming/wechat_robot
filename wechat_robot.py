@@ -30,8 +30,8 @@ def get_friend(name):
 
 
 def process_msg_from_friend(name):
-    #注册好友回复信息
     my_friend = get_friend(name)
+    #注册好友回复信息
     @bot.register(my_friend)
     def reply_my_friend(msg):
         print(msg)
@@ -61,7 +61,7 @@ def tuling_reply(msg_content, user_id):
         menu = random.choice(s['list'])
         return '[robot]:' + menu['name'] + '\n' + menu['detailurl'] + '\n' + menu['info']
 
-#茉莉
+#茉莉机器人
 def moli_reply(msg_content):
     moli_data = {
         "question" : msg_content,
@@ -74,6 +74,7 @@ def moli_reply(msg_content):
     return '[robot]:' + m.text
 
 
+# 表情url
 def emotions_reply(keyword):
     print("try gif reply...")
     res = requests.get('https://www.doutula.com/search', {'keyword': keyword})
@@ -110,6 +111,7 @@ def my_info():
     print("我关注的微信公众号数："+str(len(t2)))
 
 
+# 发消息给自己
 def get_msg_from_myself():
     # 似乎是微信做了限制，无法用robot给自己发消息,  只能获取
     @bot.register(bot.self, except_self=False)
@@ -124,28 +126,28 @@ def get_msg_from_myself():
         elif '芝麻加人：' in msg.text:
             print('加人')
             try:
-                modify_auto_name_to_json('add', 'friends', msg.text.split('：')[1])
+                modify_support_name_to_json('add', 'friends', msg.text.split('：')[1])
             except Exception as e:
                 print('msg:', e)
                 return
         elif '芝麻减人：' in msg.text:
             print('减人')
             try:
-                modify_auto_name_to_json('del', 'friends', msg.text.split('：')[1])
+                modify_support_name_to_json('del', 'friends', msg.text.split('：')[1])
             except Exception as e:
                 print('msg:', e)
                 return
         elif '芝麻加群：' in msg.text:
             print('加群')
             try:
-                modify_auto_name_to_json('add', 'groups', msg.text.split('：')[1])
+                modify_support_name_to_json('add', 'groups', msg.text.split('：')[1])
             except Exception as e:
                 print('msg:', e)
                 return
         elif '芝麻减群：' in msg.text:
             print('减群')
             try:
-                modify_auto_name_to_json('del', 'groups', msg.text.split('：')[1])
+                modify_support_name_to_json('del', 'groups', msg.text.split('：')[1])
             except Exception as e:
                 print('msg:', e)
                 return
@@ -156,7 +158,7 @@ def get_msg_from_myself():
 
 
 def is_the_groups(msg):
-    names = get_auto_groups_and_friends()['groups']
+    names = get_support_groups_and_friends()['groups']
     print('groups:', names)
     print('NickName:', msg.chat.raw['NickName'])
     for name in names:
@@ -200,7 +202,7 @@ def process_user_msg():
     def exist_friends(msg):
         print(msg)
         #print(msg.chat.name, msg.chat.nick_name)
-        names = get_auto_groups_and_friends()['friends']
+        names = get_support_groups_and_friends()['friends']
         print('friends:', names)
         if msg.chat.name in names:
             print('hit:', msg.chat.name)
@@ -209,7 +211,7 @@ def process_user_msg():
                 msg.reply(text)
 
 
-def get_auto_groups_and_friends():
+def get_support_groups_and_friends():
     ret = {}
     ret['friends'] = []
     ret['groups'] = []
@@ -229,7 +231,7 @@ def get_auto_groups_and_friends():
     return ret
 
 
-def modify_auto_name_to_json(op, which, name):
+def modify_support_name_to_json(op, which, name):
     try:
         resFp = open('./data.json', "r", encoding='utf-8')
         jsonData = json.load(resFp)
@@ -264,7 +266,7 @@ if __name__ == '__main__':
 
     #print(tuling_reply('天气', '512583'))
     #moli_reply('天气')
-    #print(get_auto_groups_and_friends())
+    #print(get_support_groups_and_friends())
 
     # 进入Python命令行，让程序保持运行
     embed()
