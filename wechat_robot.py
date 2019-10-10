@@ -5,6 +5,8 @@ from wxpy import *
 import requests
 import json
 import random
+import assistant
+import os
 
 #茉莉API地址：http://i.itpk.cn/api.php
 #图灵API地址：http://www.tuling123.com/openapi/api
@@ -111,11 +113,41 @@ def my_info():
     print("我关注的微信公众号数："+str(len(t2)))
 
 
+def my_assistant(msg):
+    print('小助手')
+    try:
+        allcmd = msg.text.split('：')
+        cmd = ''
+        if len(allcmd) >= 2:
+            cmd = allcmd[1]
+        else:
+            cmd = allcmd[0]
+        print(cmd, ' len:', len(cmd))
+        if len(cmd) <= 0 or cmd == 'help' or cmd == '小助手':
+            ret = assistant.get_help('小助手')
+        else:
+            ret = assistant.get_help(cmd)
+        if os.path.exists(ret):
+            #TODO send file, video
+            if bot.self == msg.sender:
+                bot.file_helper.send_image(ret)
+            else:
+                msg.reply_image(ret)
+        else:
+            if bot.self == msg.sender:
+                bot.file_helper.send(ret)
+            else:
+                msg.reply(ret)
+    except Exception as e:
+        print('msg:', e)
+        return
+
 # 发消息给自己
 def get_msg_from_myself():
     # 似乎是微信做了限制，无法用robot给自己发消息,  只能获取
     @bot.register(bot.self, except_self=False)
     def reply_self(msg):
+        assert(bot.self == msg.sender)
         print(msg)
         if msg.text == '芝麻开门':
             print('启动')
@@ -151,6 +183,8 @@ def get_msg_from_myself():
             except Exception as e:
                 print('msg:', e)
                 return
+        elif '小助手：' in msg.text or msg.text == '小助手':
+            my_assistant(msg)
         else:
             text = moli_reply(msg.text)
             #print('reply:', text)
@@ -203,10 +237,12 @@ def process_user_msg():
         print(msg)
         #print(msg.chat.name, msg.chat.nick_name)
         names = get_support_groups_and_friends()['friends']
-        print('friends:', names)
+        #print('friends:', names)
         if msg.chat.name in names:
             print('hit:', msg.chat.name)
-            if s_auto_reply_enable:
+            if '小助手：' in msg.text or msg.text == '小助手':
+                my_assistant(msg)
+            elif s_auto_reply_enable:
                 text = auto_reply(msg)
                 msg.reply(text)
 
